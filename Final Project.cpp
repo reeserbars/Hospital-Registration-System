@@ -7,24 +7,24 @@
 using namespace std;
 
 struct Patient {
-	int id;
+	int id{};
 	string name;
-	int age;
+	int age{};
 	string gender;
 	string contact;
 	string medicalHistory;
 };
 
 //function prototypes
-int getIntInput(string prompt);
-void addPatient();
-vector<Patient> loadPatients();
-void savePatients(const vector<Patient>& patients);
-void editPatientById();
-void deletePatientById();
-void searchPatientById();
-void displayAllPatients();
 void menu();
+void displayAllPatients();
+void searchPatientById();
+void addPatient();
+void deletePatientById();
+void editPatientById();
+void savePatients(const vector<Patient>& patients);
+vector<Patient> loadPatients();
+int getIntInput(const string& prompt);
 
 int main() {
 	menu();
@@ -122,7 +122,7 @@ void editPatientById() {
 			cout << "Editing patient " << patient.name << endl;
 
 			cout << "New Name: ";
-			getline(cin, patient.name);  // Correctly uses getline for name
+			getline(cin, patient.name);  // Correctly uses get line() for name
 
 			patient.age = getIntInput("New Age: ");  // Uses getIntInput for age
 
@@ -220,7 +220,7 @@ void addPatient() {
 	file.close();
 }
 
-int getIntInput(string prompt) {
+int getIntInput(const string& prompt) {
 	int value;
 	while (true) {
 		cout << prompt;
