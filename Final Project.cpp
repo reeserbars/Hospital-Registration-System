@@ -3,6 +3,7 @@
 #include <vector>    // For storing and managing lists of patients
 #include <sstream>   // For parsing strings from file input
 #include <string>    // For handling string data types
+#include <iomanip>	 // for setw()
 
 using namespace std;
 
@@ -280,15 +281,15 @@ void editPatientById() {
 	for (auto& patient : patients) {
 		if (patient.id == id) {
 			found = true;
-			cout << "\n--Editing patient: " << patient.name << endl;
+			cout << "\n--Editing patient: " << patient.name << "\n--Patient ID: " << patient.id<< endl;
 
 			do
 			{
 				cout << "- 1. Edit Name\n";
-				cout << "- 2. Edit Age\n";
-				cout << "- 3. Edit Gender\n";
-				cout << "- 4. Edit Contact\n";
-				cout << "- 5. Edit Medical History\n";
+				cout << "- 2. Edit Age         |" << setw(10) << " Current: " << patient.age << endl;
+				cout << "- 3. Edit Gender      |" << setw(10) << " Current: " << patient.gender << endl;
+				cout << "- 4. Edit Contact     |" << setw(10) << " Current: " << patient.contact << endl;
+				cout << "- 5. Edit Medical History |" << setw(8) << " Current: " << patient.medicalHistory << endl;
 				cout << "- 6. Done/Back\n\n";
 				editChoice = getIntInput("Enter your choice(1 - 6): \n");
 
