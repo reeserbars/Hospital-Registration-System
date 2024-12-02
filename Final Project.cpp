@@ -61,13 +61,7 @@ void menu() {
 	} while (choice != 6);
 }
 
-void clearScreen() {
-    #ifdef _WIN32
-        system("cls"); // Windows
-    #else
-        system("clear"); // Linux/macOS
-    #endif
-}
+
 
 //Input and validation for integers
 int getIntInput(const string& prompt) { // & used again here because large strings go brr on memory, const so that no accidental modification
