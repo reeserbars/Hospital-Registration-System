@@ -3,7 +3,8 @@
 #include <vector>    // For storing and managing lists of patients
 #include <sstream>   // For parsing strings from file input
 #include <string>    // For handling string data types
-#include <iomanip>	 // for setw()
+#include <iomanip>	 // for setw() so that the ui looks cooler
+#include <cstdlib> // For system() also for making the ui look cooler because system("cls")
 
 using namespace std;
 
@@ -26,8 +27,8 @@ void editPatientById();             // Edits patient information based on ID
 void savePatients(const vector<Patient>& patients); // Saves patients to file
 vector<Patient> loadPatients();     // Loads patient data from file
 int getIntInput(const string& prompt); // Gets integer input with validation
-char getGenderInput(const string& prompt);
-string getContactInput(const string& prompt);
+char getGenderInput(const string& prompt); // like the getIntInput but for sextech
+string getContactInput(const string& prompt); // getIntInput with extra steps
 
 
 int main() {
@@ -60,6 +61,13 @@ void menu() {
 	} while (choice != 6);
 }
 
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls"); // Windows
+    #else
+        system("clear"); // Linux/macOS
+    #endif
+}
 
 //Input and validation for integers
 int getIntInput(const string& prompt) { // & used again here because large strings go brr on memory, const so that no accidental modification
@@ -133,7 +141,7 @@ string getContactInput(const string& prompt) {
         if (valid) {
             break; // Exit loop if the contact number is valid
         } else {
-            cout << "Please enter a valid contact number (11 digits or 12 including '+')." << endl;
+            cout << "Please enter a valid contact number (11 digits or 12 with '+')." << endl;
         }
     }
     return contact; // Return the valid contact number
@@ -179,7 +187,7 @@ void displayAllPatients() {
 		cout << "\nNo patient records found." << endl;
 	} else {
 		cout << "\n---All patients:\n\n";
-	
+
 	// this is the equivalent its just fancier because i used a range based for loop which are used for arrays and vectors and stuff
 	// 	for (int i = 0; i < patients.size(); ++i) {
     // 		const Patient& patient = patients[i];  
