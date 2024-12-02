@@ -25,7 +25,8 @@ void editPatientById();             // Edits patient information based on ID
 void savePatients(const vector<Patient>& patients); // Saves patients to file
 vector<Patient> loadPatients();     // Loads patient data from file
 int getIntInput(const string& prompt); // Gets integer input with validation
-
+char getGenderInput(const string& prompt);
+string getContactInput(const string& prompt);
 
 
 int main() {
@@ -74,6 +75,67 @@ int getIntInput(const string& prompt) { // & used again here because large strin
 	}
 	cin.ignore(); // clears any extra input
 	return value;
+}
+
+// Function to get valid gender input ('M' or 'F')
+char getGenderInput(const string& prompt) {
+    char gender;
+    while (true) {
+        cout << prompt; // Outputs the prompt message
+        cin >> gender; // Read input from the user
+        cin.ignore(); // Clears any extra input left in the buffer
+        gender = toupper(gender); // Converts input to uppercase to standardize (M or F)
+
+        if (gender == 'M' || gender == 'F') { // Check if input is valid (M or F)
+            break; // Exit the loop if valid input is given
+        } else {
+            cout << "Please enter a valid gender (M/F)." << endl; // Error message if invalid
+        }
+    }
+    return gender; // Return the valid gender input
+}
+
+// Function to get valid contact number input (just digits or numbers with a starting "+")
+string getContactInput(const string& prompt) {
+    string contact;
+    while (true) {
+        cout << prompt; // Outputs the prompt message
+        getline(cin, contact); // Read input from the user as a string
+
+        bool valid = true;
+
+        // Check length and content based on whether the contact starts with a '+'
+        if (contact[0] == '+') { // stuff that starts with +63
+            if (contact.length() == 13) {
+                for (int i = 1; i < contact.length(); i++) { // Skip '+' and check remaining digits 
+                    if (!isdigit(contact[i])) {
+                        valid = false;
+                        break;
+                    }
+                }
+            } else {
+                valid = false;
+            }
+        } else {
+            if (contact.length() == 11) { // for stuff that starts with 09
+                for (char ch : contact) {
+                    if (!isdigit(ch)) {
+                        valid = false;
+                        break;
+                    }
+                }
+            } else {
+                valid = false;
+            }
+        }
+
+        if (valid) {
+            break; // Exit loop if the contact number is valid
+        } else {
+            cout << "Please enter a valid contact number (11 digits or 12 including '+')." << endl;
+        }
+    }
+    return contact; // Return the valid contact number
 }
 
 // Loads patient data from file
@@ -213,27 +275,44 @@ void editPatientById() {
 	int id = getIntInput("\n---Enter the ID of the patient to edit: ");
 	vector<Patient> patients = loadPatients();
 	bool found = false;
-
+	int editChoice;
 	// iterate through every patient for matching id
 	for (auto& patient : patients) {
 		if (patient.id == id) {
 			found = true;
-			cout << "\n--Editing patient " << patient.name << endl;
+			cout << "\n--Editing patient: " << patient.name << endl;
 
-			cout << "|New Name: ";
-			getline(cin, patient.name);  // Use getline() to read a full line for the name
+			do
+			{
+				cout << "- 1. Edit Name\n";
+				cout << "- 2. Edit Age\n";
+				cout << "- 3. Edit Gender\n";
+				cout << "- 4. Edit Contact\n";
+				cout << "- 5. Edit Medical History\n";
+				cout << "- 6. Done/Back\n\n";
+				editChoice = getIntInput("Enter your choice(1 - 6): \n");
 
-			patient.age = getIntInput("|New Age: ");  // Use getIntInput for age to handle validation
-
-			cout << "|New Gender (M/F): ";
-			getline(cin, patient.gender);
-
-			cout << "|New Contact: ";
-			getline(cin, patient.contact);
-
-			cout << "|New Medical History: ";
-			getline(cin, patient.medicalHistory);
-
+				switch (editChoice) {
+					case 1: 
+						cout << "|New Name: "; getline(cin, patient.name); break;// Use getline() to read a full line for the name
+					case 2: 
+						patient.age = getIntInput("|New Age: "); // Use getIntInput for age to handle validation
+						break;
+					case 3: 
+						patient.gender = getGenderInput("|New Gender: "); // same stuff
+						break;
+					case 4: 
+						patient.contact = getContactInput("|New Contact: ");
+						break;
+					case 5: 
+						cout << "|New Medical History: ";
+						getline(cin, patient.medicalHistory);
+						break;
+					case 6: cout << "Updating..\n"; break;
+					default: cout << "Invalid choice. Please try again.\n";
+				}
+			} while (editChoice != 6);
+		
 			cout << "\n--Patient record updated successfully!" << endl;
 			break;
 		}
@@ -269,11 +348,9 @@ void addPatient() {
     // Get the rest of the patient's details
     cout << "|Enter Name: ";
     getline(cin, patient.name);
-    patient.age = getIntInput("Enter Age: ");
-    cout << "|Enter Gender (M/F): ";
-    getline(cin, patient.gender);
-    cout << "|Enter Contact: ";
-    getline(cin, patient.contact);
+    patient.age = getIntInput("|Enter Age: ");
+	patient.gender = getGenderInput("|Enter Gender: "); // same stuff
+	patient.contact = getContactInput("|Enter Contact: ");
     cout << "|Enter Medical History: ";
     getline(cin, patient.medicalHistory);
 
