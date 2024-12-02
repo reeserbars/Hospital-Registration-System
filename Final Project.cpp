@@ -182,16 +182,6 @@ void displayAllPatients() {
 	} else {
 		cout << "\n---All patients:\n\n";
 
-	// this is the equivalent its just fancier because i used a range based for loop which are used for arrays and vectors and stuff
-	// 	for (int i = 0; i < patients.size(); ++i) {
-    // 		const Patient& patient = patients[i];  
-	//
-	// syntax: for (variable-that-holds-every-value-in-the-a-container : container-where-each-element-is-put-into-the-variable-every-iteration)
-	//
-	// auto is there so you dont have to specify the type for every variable since the patients array stores different datatypes 
-	// 
-	//& copies the value of the array to the current var, const so that we dont accidentally modify it, because using & directly affects the variable since it IS the variable,
-	//its essentially another name for the variable. using it saves on memory because it doesnt make a copy of the original variable which would be pretty memory intensive
 		for (const auto& patient : patients) { 
 			cout << "| ID: " << patient.id 
 				 << "\n| Name: " << patient.name 
@@ -202,7 +192,17 @@ void displayAllPatients() {
 		}
 	}
 }
-
+	// this is the equivalent its just fancier because i used a range based for loop which are used for arrays and vectors and stuff
+	// 	for (int i = 0; i < patients.size(); ++i) {
+    // 		const Patient& patient = patients[i];  
+	//
+	// syntax: for (variable-that-holds-every-value-in-the-a-container : container-where-each-element-is-put-into-the-variable-every-iteration)
+	//
+	// auto is there so you dont have to specify the type for every variable since the patients array stores different datatypes 
+	// 
+	//& copies the value of the array to the current var, const so that we dont accidentally modify it, because using & directly affects the variable since it IS the variable,
+	//its essentially another name for the variable. using it saves on memory because it doesnt make a copy of the original variable which would be pretty memory intensive
+	
 // Ssearch for a patient by ID
 void searchPatientById() {
 	int id = getIntInput("\n---Enter the ID of the patient to search: "); //calls get input
