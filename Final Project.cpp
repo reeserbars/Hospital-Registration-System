@@ -20,7 +20,7 @@ struct Patient { //struct is a datatype that groups together related variables
 //function prototypes
 void menu();                       // Displays main menu and handles user choice
 void displayAllPatients();          // Displays all patients from the file
-void searchPatientById();           // Searches for a patient by their ID
+void searchPatient();           // Searches for a patient by their ID
 void addPatient();                  // Adds a new patient to the file
 void deletePatientById();           // Deletes a patient by their ID
 void editPatientById();             // Edits patient information based on ID
@@ -30,6 +30,14 @@ int getIntInput(const string& prompt); // Gets integer input with validation
 char getGenderInput(const string& prompt); // like the getIntInput but for sextech
 string getContactInput(const string& prompt); // getIntInput with extra steps
 
+// Function to clear the screen
+void clearScreen() {
+    #ifdef _WIN32
+        system("cls");  // Windows
+    #else
+        system("clear");  // Linux/macOS
+    #endif
+}
 
 int main() {
 	menu();
@@ -38,30 +46,32 @@ int main() {
 
 // Main menu function
 void menu() {
-	int choice;
-	do {
-		cout << "\n\n---||Hospital Registration System||---\n\n";
-		cout << "-- 1. Add Patient\n";
-		cout << "-- 2. Search Patient by ID\n";
-		cout << "-- 3. Display All Patients\n";
-		cout << "-- 4. Edit Patient by ID\n";
-		cout << "-- 5. Delete Patient by ID\n";
-		cout << "-- 6. Exit\n\n";
-		choice = getIntInput("Enter your choice(1 - 6): \n");
+    int choice;
+    do {
+        clearScreen(); // Clear the terminal
+        cout << "\n\n---|| Hospital Registration System ||---\n\n";
+        cout << "-- 1. Add Patient\n";
+        cout << "-- 2. Search Patient\n";
+        cout << "-- 3. Display All Patients\n";
+        cout << "-- 4. Edit Patient by ID\n";
+        cout << "-- 5. Delete Patient by ID\n";
+        cout << "-- 6. Exit\n\n";
 
-		switch (choice) {
-			case 1: addPatient(); break;
-			case 2: searchPatientById(); break;
-			case 3: displayAllPatients(); break;
-			case 4: editPatientById(); break;
-			case 5: deletePatientById(); break;
-			case 6: cout << "Exiting...\n"; break;
-			default: cout << "Invalid choice. Please try again.\n";
-		}
-	} while (choice != 6);
+        choice = getIntInput("Enter your choice (1 - 6): \n");
+        
+        switch (choice) {
+            case 1: addPatient(); break;
+            case 2: searchPatient(); break;
+            case 3: displayAllPatients(); break;
+            case 4: editPatientById(); break;
+            case 5: deletePatientById(); break;
+            case 6: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice. Please try again.\n";
+        }
+        // Automatically clear the screen when returning to the menu
+        if (choice != 6) clearScreen();
+    } while (choice != 6);
 }
-
-
 
 //Input and validation for integers
 int getIntInput(const string& prompt) { // & used again here because large strings go brr on memory, const so that no accidental modification
@@ -176,57 +186,102 @@ vector<Patient> loadPatients() {
 
 // Displays all patients from the csv file
 void displayAllPatients() {
-	vector<Patient> patients = loadPatients();
-	if (patients.empty()) {
-		cout << "\nNo patient records found." << endl;
-	} else {
-		cout << "\n---All patients:\n\n";
+    string choice; // Variable to store user's choice to continue or stop
+    do {
+        clearScreen(); // Clear the screen for a clean UI
+        vector<Patient> patients = loadPatients();
 
-		for (const auto& patient : patients) { 
-			cout << "| ID: " << patient.id 
-				 << "\n| Name: " << patient.name 
-				 << "\n| Age: " << patient.age
-				 << "\n| Gender: " << patient.gender 
-				 << "\n| Contact: " << patient.contact
-				 << "\n| Medical History: " << patient.medicalHistory << endl << endl;
-		}
-	}
+        if (patients.empty()) {
+            cout << "\nNo patient records found." << endl;
+        } else {
+            cout << "\n--- All Patients ---\n\n";
+            cout << left << setw(5) << "ID" 
+                 << setw(20) << "Name" 
+                 << setw(5) << "Age" 
+                 << setw(10) << "Gender" 
+                 << setw(15) << "Contact" 
+                 << "Medical History" << endl;
+
+            cout << string(60, '-') << endl; // Print a separator line
+
+            for (const auto& patient : patients) {
+                cout << left << setw(5) << patient.id 
+                     << setw(20) << patient.name 
+                     << setw(5) << patient.age 
+                     << setw(10) << patient.gender 
+                     << setw(15) << patient.contact 
+                     << patient.medicalHistory << endl;
+            }
+        }
+
+        // Ask if the user wants to view the list again
+        cout << "\nDo you want to view the list again? (y/n): ";
+        cin >> choice;
+
+    } while (choice == "y" || choice == "Y");
+
+    clearScreen(); // Clear the screen after exiting the loop
 }
 
+// Search for a patient by ID
+void searchPatient() {
+    string choice; // Variable to store user's choice to continue or stop
+    do {
+        clearScreen(); // Clear the screen for a clean UI
+        int searchChoice = getIntInput("\n--- Search Patient ---\n1. By ID\n2. By Name\n\nEnter your choice (1 or 2): ");
 
-	// this is the equivalent its just fancier because i used a range based for loop which are used for arrays and vectors and stuff
-	// 	for (int i = 0; i < patients.size(); ++i) {
-    // 		const Patient& patient = patients[i];  
-	//
-	// syntax: for (variable-that-holds-every-value-in-the-a-container : container-where-each-element-is-put-into-the-variable-every-iteration)
-	//
-	// auto is there so you dont have to specify the type for every variable since the patients array stores different datatypes 
-	// 
-	//& copies the value of the array to the current var, const so that we dont accidentally modify it, because using & directly affects the variable since it IS the variable,
-	//its essentially another name for the variable. using it saves on memory because it doesnt make a copy of the original variable which would be pretty memory intensive
-	
-// Ssearch for a patient by ID
-void searchPatientById() {
-	int id = getIntInput("\n---Enter the ID of the patient to search: "); //calls get input
-	vector<Patient> patients = loadPatients();
-	bool found = false;
+        vector<Patient> patients = loadPatients();
+        bool found = false;
 
-	for (const auto& patient : patients) {
-		//check if input id matches a patient id
-		if (patient.id == id) {
-			found = true;
-			cout << "\n\n|ID: " << patient.id 
-				 << "\n|Name: " << patient.name 
-				 << "\n|Age: " << patient.age
-				 << "\n|Gender: " << patient.gender 
-				 << "\n|Contact: " << patient.contact
-				 << "\n|Medical History: " << patient.medicalHistory << endl;
-			break; // break the loop once the patient is found
-		}
-	}
-	if (!found) {
-		cout << "Patient with ID " << id << " not found." << endl;
-	}
+        if (searchChoice == 1) {
+            int id = getIntInput("\n--- Enter the ID of the patient to search: ");
+            for (const auto& patient : patients) {
+                if (patient.id == id) {
+                    found = true;
+                    cout << "\n-- Patient Found --\n";
+                    cout << "| ID: " << patient.id 
+                         << "\n| Name: " << patient.name 
+                         << "\n| Age: " << patient.age
+                         << "\n| Gender: " << patient.gender 
+                         << "\n| Contact: " << patient.contact
+                         << "\n| Medical History: " << patient.medicalHistory << endl;
+                    break;
+                }
+            }
+        } else if (searchChoice == 2) {
+            string nameQuery;
+            cout << "\n--- Enter part of the Name to search: ";
+            cin.ignore(); // Clear the buffer
+            getline(cin, nameQuery);
+
+            cout << "\n-- Matching Patients --\n";
+
+            for (const auto& patient : patients) {
+                if (patient.name.find(nameQuery) != string::npos) { // Check if nameQuery is a substring
+                    found = true;
+                    cout << "| ID: " << patient.id 
+                         << "\n| Name: " << patient.name 
+                         << "\n| Age: " << patient.age
+                         << "\n| Gender: " << patient.gender 
+                         << "\n| Contact: " << patient.contact
+                         << "\n| Medical History: " << patient.medicalHistory << "\n\n";
+                }
+            }
+        } else {
+            cout << "\nInvalid choice. Please try again.\n";
+        }
+
+        if (!found) {
+            cout << "\n-- No matching patient found." << endl;
+        }
+
+        // Ask if the user wants to search for another patient
+        cout << "\nDo you want to search for another patient? (y/n): ";
+        cin >> choice;
+
+    } while (choice == "y" || choice == "Y");
+
+    clearScreen(); // Clear the screen after exiting the loop
 }
 
 // Save all patients to the file
@@ -251,124 +306,153 @@ void savePatients(const vector<Patient>& patients) {
 
 // Function to delete a patient by ID
 void deletePatientById() {
-    int patientIdToDelete = getIntInput("\n---Enter the ID of the patient to delete: ");
-    vector<Patient> patientList = loadPatients();
-    bool isPatientFound = false;
+    string choice; // Variable to store user's choice to continue or stop
+    do {
+        clearScreen(); // Clear the screen for a clean UI
+        int patientIdToDelete = getIntInput("\n---Enter the ID of the patient to delete: ");
+        vector<Patient> patientList = loadPatients();
+        bool isPatientFound = false;
 
-    // Iterate through the list of patients to find the patient with the given ID
-    for (auto patientIterator = patientList.begin(); patientIterator != patientList.end(); ++patientIterator) {
-        // If the patient ID matches, erase the patient record from the list
-        if (patientIterator->id == patientIdToDelete) { //patientIterator->id is Patient.id but since ur not accessing the actual object you use -> instead of .
-            isPatientFound = true;
-            patientList.erase(patientIterator);
-            cout << "\n--Patient record deleted successfully!" << endl;
-            break;
+        // Iterate through the list of patients to find the patient with the given ID
+        for (auto patientIterator = patientList.begin(); patientIterator != patientList.end(); ++patientIterator) {
+            if (patientIterator->id == patientIdToDelete) {
+                isPatientFound = true;
+                patientList.erase(patientIterator); // Delete the patient
+                cout << "\n--Patient record deleted successfully!" << endl;
+                break;
+            }
         }
-    }
 
-    // If patient was not found, display a message
-    if (!isPatientFound) {
-        cout << "\n--Patient with ID " << patientIdToDelete << " not found." << endl;
-    }
+        // If patient was not found, display a message
+        if (!isPatientFound) {
+            cout << "\n--Patient with ID " << patientIdToDelete << " not found." << endl;
+        }
 
-    // Save the updated list of patients back to the file
-    savePatients(patientList);
+        // Save the updated list of patients back to the file
+        savePatients(patientList);
+
+        // Ask if the user wants to delete another patient
+        cout << "\nDo you want to delete another patient? (y/n): ";
+        cin >> choice;
+
+    } while (choice == "y" || choice == "Y");
+
+    clearScreen(); // Clear the screen after exiting the loop
 }
 
 // Edit a patient by ID
 void editPatientById() {
-	int id = getIntInput("\n---Enter the ID of the patient to edit: ");
-	vector<Patient> patients = loadPatients();
-	bool found = false;
-	int editChoice;
-	// iterate through every patient for matching id
-	for (auto& patient : patients) {
-		if (patient.id == id) {
-			found = true;
-			cout << "\n--Editing patient: " << patient.name << "\n--Patient ID: " << patient.id<< endl;
+    int id = getIntInput("\n---Enter the ID of the patient to edit: ");
+    vector<Patient> patients = loadPatients();
+    bool found = false;
 
-			do
-			{
-				cout << "- 1. Edit Name\n";
-				cout << "- 2. Edit Age         |" << setw(10) << " Current: " << patient.age << endl;
-				cout << "- 3. Edit Gender      |" << setw(10) << " Current: " << patient.gender << endl;
-				cout << "- 4. Edit Contact     |" << setw(10) << " Current: " << patient.contact << endl;
-				cout << "- 5. Edit Medical History |" << setw(8) << " Current: " << patient.medicalHistory << endl;
-				cout << "- 6. Done/Back\n\n";
-				editChoice = getIntInput("Enter your choice(1 - 6): \n");
+    for (auto& patient : patients) {
+        if (patient.id == id) {
+            found = true;
+            int editChoice;
+            do {
+                clearScreen(); // Clear screen for each iteration
+                cout << "\n--Editing patient: " << patient.name << "\n--Patient ID: " << patient.id << endl;
+                cout << "- 1. Edit Name\n";
+                cout << "- 2. Edit Age          | Current: " << patient.age << endl;
+                cout << "- 3. Edit Gender       | Current: " << patient.gender << endl;
+                cout << "- 4. Edit Contact      | Current: " << patient.contact << endl;
+                cout << "- 5. Edit Medical History | Current: " << patient.medicalHistory << endl;
+                cout << "- 6. Done/Back\n\n";
 
-				switch (editChoice) {
-					case 1: 
-						cout << "|New Name: "; getline(cin, patient.name); break;// Use getline() to read a full line for the name
-					case 2: 
-						patient.age = getIntInput("|New Age: "); // Use getIntInput for age to handle validation
-						break;
-					case 3: 
-						patient.gender = getGenderInput("|New Gender: "); // same stuff
-						break;
-					case 4: 
-						patient.contact = getContactInput("|New Contact: ");
-						break;
-					case 5: 
-						cout << "|New Medical History: ";
-						getline(cin, patient.medicalHistory);
-						break;
-					case 6: cout << "Updating..\n"; break;
-					default: cout << "Invalid choice. Please try again.\n";
-				}
-			} while (editChoice != 6);
-		
-			cout << "\n--Patient record updated successfully!" << endl;
-			break;
-		}
-	}
+                editChoice = getIntInput("Enter your choice (1 - 6): \n");
 
-	if (!found) {
-		cout << "\n--Patient with ID " << id << " not found." << endl;
-	}
+                switch (editChoice) {
+                    case 1: 
+                        cout << "| New Name: "; 
+                        getline(cin >> ws, patient.name); 
+                        break;
+                    case 2: 
+                        patient.age = getIntInput("| New Age: "); 
+                        break;
+                    case 3: 
+                        patient.gender = getGenderInput("| New Gender (M/F): "); 
+                        break;
+                    case 4: 
+                        patient.contact = getContactInput("| New Contact: "); 
+                        break;
+                    case 5: 
+                        cout << "| New Medical History: ";
+                        getline(cin >> ws, patient.medicalHistory); 
+                        break;
+                    case 6: 
+                        cout << "Updating...\n"; 
+                        break;
+                    default: 
+                        cout << "Invalid choice. Please try again.\n";
+                }
+            } while (editChoice != 6);
 
-	savePatients(patients);
+            savePatients(patients);
+            break;
+        }
+    }
+
+    if (!found) {
+        cout << "\n--Patient with ID " << id << " not found." << endl;
+    }
 }
 
 // Adds new patient to the system
 void addPatient() {
-    ofstream file("patients.csv", ios::app);    // Open the file in append mode to add new data at the end
-    Patient patient;    //patient object to hold the new patient's data
-    int maxId = 0;     // highest id in the file
-    ifstream infile("patients.csv");
-    string line;
+    ofstream file("patients.csv", ios::app); // Open file in append mode
+    string choice;
 
-    while (getline(infile, line)) {    // read through each line of the file to find the highest id
-        stringstream ss(line);
-        string id;
-        getline(ss, id, ',');  // extract the id part of the line
-        int currentId = stoi(id);  // fancy static cast
-        if (currentId > maxId) {
-            maxId = currentId;  // Update maxId if the current id is greater
+    do {
+        clearScreen(); // Clear the terminal for a clean UI
+        Patient patient;
+        int maxId = 0;
+        ifstream infile("patients.csv");
+        string line;
+
+        // Find the highest existing patient ID
+        while (getline(infile, line)) {
+            stringstream ss(line);
+            string id;
+            getline(ss, id, ','); 
+            int currentId = stoi(id);
+            if (currentId > maxId) {
+                maxId = currentId;
+            }
         }
-    }
+        infile.close();
 
-	cout << "--Adding a new patient\n";
-    patient.id = maxId + 1; // Assign the new patient's ID as one greater than the highest existing ID
-    // Get the rest of the patient's details
-    cout << "|Enter Name: ";
-    getline(cin, patient.name);
-    patient.age = getIntInput("|Enter Age: ");
-	patient.gender = getGenderInput("|Enter Gender: "); // same stuff
-	patient.contact = getContactInput("|Enter Contact: ");
-    cout << "|Enter Medical History: ";
-    getline(cin, patient.medicalHistory);
+        // Assign a new ID based on the highest found ID
+        patient.id = maxId + 1;
 
-    if (file.is_open()) {
-        file << patient.id << ","
-             << patient.name << ","
-             << patient.age << ","
-             << patient.gender << ","
-             << patient.contact << ","
-             << patient.medicalHistory << endl;
-        cout << "\n--Patient added successfully!" << endl;
-    } else {
-        cout << "\n--Error opening file for writing." << endl;
-    }
-    file.close();
+        // Collect patient information
+        cout << "--Adding a new patient--\n";
+        cout << "| Enter Name: ";
+        getline(cin >> ws, patient.name);
+        patient.age = getIntInput("| Enter Age: ");
+        patient.gender = getGenderInput("| Enter Gender (M/F): ");
+        patient.contact = getContactInput("| Enter Contact: ");
+        cout << "| Enter Medical History: ";
+        getline(cin, patient.medicalHistory);
+
+        // Write the new patient data to the file
+        if (file.is_open()) {
+            file << patient.id << ","
+                 << patient.name << ","
+                 << patient.age << ","
+                 << patient.gender << ","
+                 << patient.contact << ","
+                 << patient.medicalHistory << endl;
+            cout << "\n--Patient added successfully!\n";
+        } else {
+            cout << "\n--Error opening file for writing.\n";
+        }
+
+        // Ask if the user wants to add another patient
+        cout << "\nDo you want to add another patient? (y/n): ";
+        cin >> choice;
+
+    } while (choice == "y" || choice == "Y");
+
+    file.close(); // Close the file after all additions
 }
