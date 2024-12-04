@@ -192,6 +192,8 @@ void displayAllPatients() {
 		}
 	}
 }
+
+
 	// this is the equivalent its just fancier because i used a range based for loop which are used for arrays and vectors and stuff
 	// 	for (int i = 0; i < patients.size(); ++i) {
     // 		const Patient& patient = patients[i];  
